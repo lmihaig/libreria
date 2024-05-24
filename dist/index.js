@@ -21,6 +21,10 @@ const passport_google_oauth20_1 = require("passport-google-oauth20");
 const schema_1 = require("./db/schema");
 const dotenv_1 = __importDefault(require("dotenv"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const bookInstanceRoutes_1 = __importDefault(require("./routes/bookInstanceRoutes"));
+const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const friendshipRoutes_1 = __importDefault(require("./routes/friendshipRoutes"));
+const readingListRoutes_1 = __importDefault(require("./routes/readingListRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3000;
@@ -58,7 +62,6 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
             if (existingUser) {
                 return done(null, existingUser);
             }
-            // console.log(profile)
             const newUser = yield drizzle_1.default.insert(schema_1.users).values({
                 googleId: profile.id,
                 nickname: profile.displayName
@@ -71,6 +74,10 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     });
 }));
 app.use('/', authRoutes_1.default);
+app.use('/book-instances', bookInstanceRoutes_1.default);
+app.use('/users', userRoutes_1.default);
+app.use('/friendships', friendshipRoutes_1.default);
+app.use('/reading-lists', readingListRoutes_1.default);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

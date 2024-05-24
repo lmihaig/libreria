@@ -6,6 +6,12 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { users } from './db/schema';
 import dotenv from 'dotenv';
 import authRouter from './routes/authRoutes';
+import bookInstanceRouter from './routes/bookInstanceRoutes';
+import userRouter from './routes/userRoutes';
+import friendshipRouter from './routes/friendshipRoutes';
+import readingListRouter from './routes/readingListRoutes';
+import { ensureAuthenticated } from './middlewares/authMiddleware';
+import bookTransactionRouter from './routes/bookTransactionRoutes'
 
 
 dotenv.config();
@@ -18,17 +24,15 @@ app.use(session({ secret: process.env.SESSION_SECRET ?? '', resave: false, saveU
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 passport.serializeUser((user: any, done) => {
   done(null, user.id);
-})
+});
 
 passport.deserializeUser(async (id: number, done) => {
   try {
-    const user = await db.query.users.findFirst(
-      {
-        where: (users, { eq }) => eq(users.id, id)
-      });
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, id)
+    });
     done(null, user);
   } catch (error) {
     done(error, null);
@@ -48,9 +52,8 @@ passport.use(new GoogleStrategy({
       where: (users, { eq }) => eq(users.googleId, profile.id)
     });
     if (existingUser) {
-      return done(null, existingUser)
+      return done(null, existingUser);
     }
-    // console.log(profile)
     const newUser = await db.insert(users).values({
       googleId: profile.id,
       nickname: profile.displayName
@@ -63,7 +66,15 @@ passport.use(new GoogleStrategy({
   }
 }));
 
-app.use('/', authRouter)
+// Public routes
+app.use('/', authRouter);
+
+// Private routes -
+app.use('/book-instances', ensureAuthenticated, bookInstanceRouter);
+app.use('/users', ensureAuthenticated, userRouter);
+app.use('/friendships', ensureAuthenticated, friendshipRouter);
+app.use('/reading-lists', ensureAuthenticated, readingListRouter);
+app.use('/book-transactions', ensureAuthenticated, bookTransactionRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
