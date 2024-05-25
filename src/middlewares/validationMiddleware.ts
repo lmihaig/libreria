@@ -12,12 +12,9 @@ export const validateBookInstance = (req: Request, res: Response, next: NextFunc
 };
 
 export const validateUser = (req: Request, res: Response, next: NextFunction) => {
-  const { googleId, nickname } = req.body;
-  if (!googleId || !nickname) {
-    return res.status(400).json({ error: 'Google ID and nickname are required' });
-  }
-  if (typeof googleId !== 'string' || googleId.length > 50) {
-    return res.status(400).json({ error: 'Invalid Google ID format' });
+  const { nickname } = req.body;
+  if (!nickname) {
+    return res.status(400).json({ error: 'New nickname is required' });
   }
   if (typeof nickname !== 'string' || nickname.length > 32) {
     return res.status(400).json({ error: 'Invalid nickname format' });

@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express';
 import db from '../db/drizzle';
 import { users } from '../db/schema';
-import { ensureAuthenticated } from '../middlewares/authMiddleware';
+import { ensureAuthenticated, ensureUserOwnership } from '../middlewares/authMiddleware';
 import { eq } from 'drizzle-orm';
 import { validateUser } from '../middlewares/validationMiddleware';
 
 const router = Router();
 
-router.get('/:id', ensureAuthenticated, async (req: Request, res: Response) => {
+router.get('/:id', ensureAuthenticated, ensureUserOwnership, async (req: Request, res: Response) => {
   const userId = parseInt(req.params.id, 10);
 
   try {
@@ -23,7 +23,7 @@ router.get('/:id', ensureAuthenticated, async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:id', ensureAuthenticated, validateUser, async (req: Request, res: Response) => {
+router.put('/:id', ensureAuthenticated, ensureUserOwnership, validateUser, async (req: Request, res: Response) => {
   const userId = parseInt(req.params.id, 10);
   const { nickname } = req.body;
 
@@ -39,7 +39,7 @@ router.put('/:id', ensureAuthenticated, validateUser, async (req: Request, res: 
   }
 });
 
-router.delete('/:id', ensureAuthenticated, async (req: Request, res: Response) => {
+router.delete('/:id', ensureAuthenticated, ensureUserOwnership, async (req: Request, res: Response) => {
   const userId = parseInt(req.params.id, 10);
 
   try {

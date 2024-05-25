@@ -25,6 +25,8 @@ const bookInstanceRoutes_1 = __importDefault(require("./routes/bookInstanceRoute
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const friendshipRoutes_1 = __importDefault(require("./routes/friendshipRoutes"));
 const readingListRoutes_1 = __importDefault(require("./routes/readingListRoutes"));
+const authMiddleware_1 = require("./middlewares/authMiddleware");
+const bookTransactionRoutes_1 = __importDefault(require("./routes/bookTransactionRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3000;
@@ -73,11 +75,14 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
         }
     });
 }));
+// Public routes
 app.use('/', authRoutes_1.default);
-app.use('/book-instances', bookInstanceRoutes_1.default);
-app.use('/users', userRoutes_1.default);
-app.use('/friendships', friendshipRoutes_1.default);
-app.use('/reading-lists', readingListRoutes_1.default);
+// Private routes -
+app.use('/book-instances', authMiddleware_1.ensureAuthenticated, bookInstanceRoutes_1.default);
+app.use('/users', authMiddleware_1.ensureAuthenticated, userRoutes_1.default);
+app.use('/friendships', authMiddleware_1.ensureAuthenticated, friendshipRoutes_1.default);
+app.use('/reading-lists', authMiddleware_1.ensureAuthenticated, readingListRoutes_1.default);
+app.use('/book-transactions', authMiddleware_1.ensureAuthenticated, bookTransactionRoutes_1.default);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
